@@ -1,3 +1,4 @@
+var fs = require('fs');
 var should = require('should');
 var _ = require('underscore');
 var TemplateDirectory = require('../lib/template-directory');
@@ -84,6 +85,116 @@ describe('TemplateDirectory', function() {
 
 			it('should have correct value for sub/widget', function() {
 				should(instance.cache['sub/widget']).eql('[ things ]');
+			});
+
+		});
+
+	});
+
+	describe('watching for new files', function() {
+
+		var path, instance;
+
+		beforeEach(function(done) {
+			path = __dirname + '/views';
+			instance = new TemplateDirectory(path);
+			instance.load(function(err) {
+				should(err).not.be.ok();
+				setTimeout(done, 100);
+			});
+		});
+
+		it('should have found n files', function() {
+			should(Object.keys(instance.cache).length).eql(3);
+		});
+
+		describe('creating', function() {
+
+			beforeEach(function(done) {
+				fs.writeFile(path + '/rogue.html', 'blah', function(err) {
+					should(err).not.be.ok();
+					instance.load(function(err) {
+						should(err).not.be.ok();
+						done();
+					})
+				});
+			});
+
+			afterEach(function(done) {
+				fs.unlink(path + '/rogue.html', function(err) {
+					should(err).not.be.ok();
+					done();
+				});
+			});
+
+			it('should have found n+1 files', function() {
+				should(Object.keys(instance.cache).length).eql(4);
+			});
+
+			it('should have correct content for extra file', function() {
+				should(instance.cache['rogue']).eql('blah');
+			});
+
+		});
+
+	});
+
+	describe('watching for file changes', function() {
+
+		var path, instance;
+
+		beforeEach(function(done) {
+			path = __dirname + '/views';
+			instance = new TemplateDirectory(path);
+			fs.writeFile(path + '/temp.html', 'foo', function(err) {
+				should(err).not.be.ok();
+				setTimeout(done, 31);
+			});
+		});
+
+		afterEach(function(done) {
+			fs.unlink(path + '/temp.html', function(err) {
+				should(err).not.be.ok();
+				done();
+			});
+		});
+
+		describe('loading', function() {
+
+			beforeEach(function(done) {
+				instance.load(function(err) {
+					should(err).not.be.ok();
+					done();
+				});
+			});
+
+			it('should find all files', function() {
+				should(Object.keys(instance.cache).length).eql(4);
+			});
+
+			it('should find new file', function() {
+				should(instance.cache['temp']).be.ok();
+			});
+
+			it('should get correct content', function() {
+				should(instance.cache['temp']).eql('foo');
+			});
+
+			describe('reloading', function(done) {
+
+				it('should update new file content', function(done) {
+					fs.writeFile(path + '/temp.html', 'bar', function(err) {
+						should(err).not.be.ok();
+						setTimeout(function() {
+							instance.load(function(err) {
+								should(err).not.be.ok();
+								should(instance.cache['temp']).eql('bar');
+								done();
+							})
+						}, 31);
+					});
+				});
+
 			});
 
 		});
