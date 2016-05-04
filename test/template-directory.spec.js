@@ -135,6 +135,64 @@ describe('TemplateDirectory', function() {
 				should(instance.cache['rogue']).eql('blah');
 			});
 
+			describe('removing', function() {
+
+				beforeEach(function(done) {
+					fs.unlink(path + '/rogue.html', function(err) {
+						should(err).not.be.ok();
+						setTimeout(done, 31);
+					});
+				});
+
+				afterEach(function(done) {
+					fs.writeFile(path + '/rogue.html', '', function(err) {
+						should(err).not.be.ok();
+						done();
+					});
+				});
+
+				describe('loading again', function() {
+
+					var loadError;
+
+					beforeEach(function(done) {
+						instance.load(function(err) {
+							loadError = err;
+							done();
+						});
+					});
+
+					it('should not pass error', function() {
+						should(loadError).not.be.ok();
+					});
+
+					it('should not have removed file', function() {
+						should(instance.cache).not.have.ownProperty('rogue');
+					});
+
+				});
+
+				describe('purging', function() {
+
+					beforeEach(function(done) {
+						instance.purge(function(err) {
+							should(err).not.be.ok();
+							done();
+						});
+					});
+
+					it('should have reduced cache', function() {
+						should(Object.keys(instance.cache).length).eql(3);
+					});
+
+					it('should have removed purged file', function() {
+						should(instance.cache).not.have.ownProperty('rogue');
+					});
+
+				});
+
+			});
+
 		});
 
 	});
