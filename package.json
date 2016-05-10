@@ -9,6 +9,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:reykjavikingur/web-template-file-tree.git"
+  },
   "devDependencies": {
     "mocha": "^2.4.5",
     "should": "^8.3.1",
