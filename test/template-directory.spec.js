@@ -4,86 +4,86 @@ var _ = require('underscore');
 var TemplateDirectory = require('../lib/template-directory');
 
 
-describe('TemplateDirectory', function() {
+describe('TemplateDirectory', function () {
 
-	it('should be defined', function() {
+	it('should be defined', function () {
 		should(TemplateDirectory).be.ok();
 	});
 
-	it('should fail to instantiate without directory', function() {
-		should(function() {
+	it('should fail to instantiate without directory', function () {
+		should(function () {
 			new TemplateDirectory();
 		}).throw();
 	});
 
-	describe('instantiation', function() {
+	describe('instantiation', function () {
 
 		var path, instance;
 
-		beforeEach(function() {
+		beforeEach(function () {
 			path = __dirname + '/views';
 			instance = new TemplateDirectory(path);
 		});
 
-		it('should work', function() {
+		it('should work', function () {
 			should(instance).be.ok();
 		});
 
-		describe('normalize', function() {
+		describe('normalize', function () {
 
-			it('should fix base level file path', function() {
+			it('should fix base level file path', function () {
 				var filePath = __dirname + '/views/index.html';
 				should(instance.normalize(filePath)).eql('index');
 			});
 
-			it('should fix file path in subdirectory', function() {
+			it('should fix file path in subdirectory', function () {
 				var filePath = __dirname + '/views/sub/other.html';
 				should(instance.normalize(filePath)).eql('sub/other');
 			});
 
 		});
 
-		describe('loading', function() {
+		describe('loading', function () {
 
 			var loadError;
 
-			beforeEach(function(done) {
-				instance.load(function(err) {
+			beforeEach(function (done) {
+				instance.load(function (err) {
 					loadError = err;
 					done();
 				});
 			});
 
-			it('should not return error', function() {
+			it('should not return error', function () {
 				should(loadError).not.be.ok();
 			});
 
-			it('should have cache', function() {
+			it('should have cache', function () {
 				should(instance.cache).be.ok();
 			});
 
-			it('should put three items in cache', function() {
+			it('should put three items in cache', function () {
 				var keys = Object.keys(instance.cache);
 				should(keys.length).eql(3);
 			});
 
-			it('should have correct keys in cache', function() {
+			it('should have correct keys in cache', function () {
 				var keys = Object.keys(instance.cache);
 				var expectedKeys = ['index', 'faq', 'sub/widget'];
-				_.each(expectedKeys, function(expectedKey) {
+				_.each(expectedKeys, function (expectedKey) {
 					should(keys).containEql(expectedKey);
 				});
 			});
 
-			it('should have correct value for index', function() {
+			it('should have correct value for index', function () {
 				should(instance.cache['index']).eql('home\n');
 			});
 
-			it('should have correct value for faq', function() {
+			it('should have correct value for faq', function () {
 				should(instance.cache['faq']).eql('questions answered');
 			});
 
-			it('should have correct value for sub/widget', function() {
+			it('should have correct value for sub/widget', function () {
 				should(instance.cache['sub/widget']).eql('[ things ]');
 			});
 
@@ -91,101 +91,101 @@ describe('TemplateDirectory', function() {
 
 	});
 
-	describe('watching for new files', function() {
+	describe('watching for new files', function () {
 
 		var path, instance;
 
-		beforeEach(function(done) {
+		beforeEach(function (done) {
 			path = __dirname + '/views';
 			instance = new TemplateDirectory(path);
-			instance.load(function(err) {
+			instance.load(function (err) {
 				should(err).not.be.ok();
 				setTimeout(done, 100);
 			});
 		});
 
-		it('should have found n files', function() {
+		it('should have found n files', function () {
 			should(Object.keys(instance.cache).length).eql(3);
 		});
 
-		describe('creating', function() {
+		describe('creating', function () {
 
-			beforeEach(function(done) {
-				fs.writeFile(path + '/rogue.html', 'blah', function(err) {
+			beforeEach(function (done) {
+				fs.writeFile(path + '/rogue.html', 'blah', function (err) {
 					should(err).not.be.ok();
-					instance.load(function(err) {
+					instance.load(function (err) {
 						should(err).not.be.ok();
 						done();
 					})
 				});
 			});
 
-			afterEach(function(done) {
-				fs.unlink(path + '/rogue.html', function(err) {
+			afterEach(function (done) {
+				fs.unlink(path + '/rogue.html', function (err) {
 					should(err).not.be.ok();
 					done();
 				});
 			});
 
-			it('should have found n+1 files', function() {
+			it('should have found n+1 files', function () {
 				should(Object.keys(instance.cache).length).eql(4);
 			});
 
-			it('should have correct content for extra file', function() {
+			it('should have correct content for extra file', function () {
 				should(instance.cache['rogue']).eql('blah');
 			});
 
-			describe('removing', function() {
+			describe('removing', function () {
 
-				beforeEach(function(done) {
-					fs.unlink(path + '/rogue.html', function(err) {
+				beforeEach(function (done) {
+					fs.unlink(path + '/rogue.html', function (err) {
 						should(err).not.be.ok();
 						setTimeout(done, 31);
 					});
 				});
 
-				afterEach(function(done) {
-					fs.writeFile(path + '/rogue.html', '', function(err) {
+				afterEach(function (done) {
+					fs.writeFile(path + '/rogue.html', '', function (err) {
 						should(err).not.be.ok();
 						done();
 					});
 				});
 
-				describe('loading again', function() {
+				describe('loading again', function () {
 
 					var loadError;
 
-					beforeEach(function(done) {
-						instance.load(function(err) {
+					beforeEach(function (done) {
+						instance.load(function (err) {
 							loadError = err;
 							done();
 						});
 					});
 
-					it('should not pass error', function() {
+					it('should not pass error', function () {
 						should(loadError).not.be.ok();
 					});
 
-					it('should not have removed file', function() {
+					it('should not have removed file', function () {
 						should(instance.cache).not.have.ownProperty('rogue');
 					});
 
 				});
 
-				describe('purging', function() {
+				describe('purging', function () {
 
-					beforeEach(function(done) {
-						instance.purge(function(err) {
+					beforeEach(function (done) {
+						instance.purge(function (err) {
 							should(err).not.be.ok();
 							done();
 						});
 					});
 
-					it('should have reduced cache', function() {
+					it('should have reduced cache', function () {
 						should(Object.keys(instance.cache).length).eql(3);
 					});
 
-					it('should have removed purged file', function() {
+					it('should have removed purged file', function () {
 						should(instance.cache).not.have.ownProperty('rogue');
 					});
 
@@ -197,54 +197,58 @@ describe('TemplateDirectory', function() {
 
 	});
 
-	describe('watching for file changes', function() {
+	describe('watching for file changes', function () {
 
 		var path, instance;
 
-		beforeEach(function(done) {
+		beforeEach(function (done) {
 			path = __dirname + '/views';
 			instance = new TemplateDirectory(path);
-			fs.writeFile(path + '/temp.html', 'foo', function(err) {
+			fs.writeFile(path + '/temp.html', 'foo', function (err) {
 				should(err).not.be.ok();
 				setTimeout(done, 31);
 			});
 		});
 
-		afterEach(function(done) {
-			fs.unlink(path + '/temp.html', function(err) {
+		afterEach(function (done) {
+			fs.unlink(path + '/temp.html', function (err) {
 				should(err).not.be.ok();
 				done();
 			});
 		});
 
-		describe('loading', function() {
+		describe('loading', function () {
 
-			beforeEach(function(done) {
-				instance.load(function(err) {
+			beforeEach(function (done) {
+				instance.load(function (err) {
 					should(err).not.be.ok();
 					done();
 				});
 			});
 
-			it('should find all files', function() {
+			it('should find all files', function () {
 				should(Object.keys(instance.cache).length).eql(4);
 			});
 
-			it('should find new file', function() {
+			it('should find new file', function () {
 				should(instance.cache['temp']).be.ok();
 			});
 
-			it('should get correct content', function() {
+			it('should get correct content', function () {
 				should(instance.cache['temp']).eql('foo');
 			});
 
-			describe('reloading', function(done) {
+			describe('reloading', function () {
 
-				it('should update new file content', function(done) {
-					fs.writeFile(path + '/temp.html', 'bar', function(err) {
+				beforeEach(function (done) {
+					setTimeout(done, 1200);
+				});
+
+				it('should update new file content', function (done) {
+					fs.writeFile(path + '/temp.html', 'bar', function (err) {
 						should(err).not.be.ok();
-						setTimeout(function() {
-							instance.load(function(err) {
+						setTimeout(function () {
+							instance.load(function (err) {
 								should(err).not.be.ok();
 								should(instance.cache['temp']).eql('bar');
 								done();
