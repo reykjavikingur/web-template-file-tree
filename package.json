@@ -1,13 +1,13 @@
 {
   "name": "web-template-file-tree",
   "version": "1.0.0",
-  "description": "",
+  "description": "Utility to index files in a directory based on relative path and cache contents",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["template", "html", "component", "file cache"],
+  "author": "Andrew Strader",
   "license": "ISC",
   "repository": {
     "type": "git",
