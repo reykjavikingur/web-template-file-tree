@@ -16,7 +16,7 @@ describe('TemplateFile', function () {
 		}).throw();
 	});
 
-	describe('instantiation', function () {
+	describe('instance for existing file', function () {
 
 		var path, instance;
 
@@ -149,6 +149,67 @@ describe('TemplateFile', function () {
 
 				});
 
+			});
+
+		});
+
+	});
+
+	describe('instance for non-existent file', function () {
+
+		var path, instance;
+
+		beforeEach(function () {
+			path = __dirname + '/../.tmp/foo.html';
+			instance = new TemplateFile(path);
+		});
+
+		it('(SANITY) should not have created file at path yet', function (done) {
+			fs.stat(path, function (err, stat) {
+				should(err).be.ok();
+				done();
+			});
+		});
+
+		describe('save', function () {
+
+			var error, content;
+
+			beforeEach(function (done) {
+				content = 'oyo';
+				instance.content = content;
+				instance.save(function (err) {
+					error = err;
+					done();
+				});
+			});
+
+			afterEach(function (done) {
+				fs.unlink(path, function (err) {
+					if (err) {
+						done(err);
+					}
+					else {
+						done();
+					}
+				});
+			});
+
+			it('should not have error', function () {
+				should(error).not.be.ok();
+			});
+
+			it('should have created file', function () {
+				fs.stat(path, function (err, stat) {
+					should(err).not.be.ok();
+				});
+			});
+
+			it('should have correct content', function () {
+				fs.readFile(path, 'utf8', function (err, data) {
+					should(err).not.be.ok();
+					should(data).equal(content);
+				});
 			});
 
 		});

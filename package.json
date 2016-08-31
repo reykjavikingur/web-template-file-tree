@@ -6,7 +6,12 @@
   "scripts": {
     "test": "mocha"
   },
-  "keywords": ["template", "html", "component", "file cache"],
+  "keywords": [
+    "template",
+    "html",
+    "component",
+    "file cache"
+  ],
   "author": "Andrew Strader",
   "license": "ISC",
   "repository": {
@@ -21,6 +26,7 @@
   },
   "dependencies": {
     "glob": "^7.0.3",
+    "mkdirp": "^0.5.1",
     "underscore": "^1.8.3"
   }
 }

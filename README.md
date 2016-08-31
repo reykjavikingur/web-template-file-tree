@@ -51,10 +51,21 @@ Instantiates file tree and initializes `cache` to empty Object.
 
 * `callback` {Function} the callback, taking one `error` argument
 
-Asynchronously updates `cache` property with keys corresponding to relative file paths (without extensions) and values to file contents.
+Asynchronously updates `cache` property with keys corresponding to relative file paths (without extensions)
+and values to file contents.
 
 Passes `error` argument to callback if unsuccessful.
 
 For efficiency, it uses last modification timestamp to decide whether to re-read file contents into `cache`.
+
+#### `save(callback)`
+
+* `callback` {Function} the callback, taking one `error` argument
+
+Asynchronously writes `cache` to directory,
+creating files with relative paths corresponding to keys
+(without extensions) and file contents corresponding to values.
+
+Passes `error` argument to callback if unsuccessful.
 
 --
