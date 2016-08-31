@@ -17,6 +17,40 @@ describe('TemplateDirectory', function () {
 		}).throw();
 	});
 
+	describe('instance for non-existent directory', function () {
+		var path, instance;
+
+		beforeEach(function () {
+			path = __dirname + '/doesnotexist';
+			instance = new TemplateDirectory(path);
+		});
+
+		it('(SANITY) should not have created directory', function (done) {
+			fs.stat(path, function (err, stats) {
+				should(err).be.ok();
+				done();
+			});
+		});
+
+		describe('load', function () {
+			var error;
+			beforeEach(function (done) {
+				instance.load(function (err) {
+					error = err;
+					done();
+				})
+			});
+
+			it('should not set error', function () {
+				should(error).not.be.ok();
+			});
+			it('should have empty cache', function () {
+				should(instance.cache).eql({});
+			});
+		});
+
+	});
+
 	describe('instance for populated directory', function () {
 
 		var path, instance;
@@ -286,6 +320,19 @@ describe('TemplateDirectory', function () {
 			fs.stat(path, function (err, stats) {
 				should(err).be.ok();
 				done();
+			});
+		});
+
+		describe('save with no cache entry', function () {
+			var error;
+			beforeEach(function (done) {
+				instance.save(function (err) {
+					error = err;
+					done();
+				});
+			});
+			it('should not set error', function () {
+				should(error).not.be.ok();
 			});
 		});
 
