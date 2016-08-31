@@ -321,6 +321,65 @@ describe('TemplateDirectory', function () {
 				});
 			});
 
+			describe('resave with modifications', function () {
+
+				var content2;
+
+				beforeEach(function (done) {
+					content2 = 'Modded greetings!';
+					instance.cache['page'] = content2;
+					instance.save(function (err) {
+						if (err) {
+							done(err);
+						}
+						else {
+							done();
+						}
+					});
+				});
+
+				it('should update file', function (done) {
+					fs.readFile(path + '/page.html', 'utf8', function (err, data) {
+						should(err).not.be.ok();
+						should(data).equal(content2);
+						done();
+					});
+				});
+
+			});
+
+			describe('resave with addition', function () {
+
+				beforeEach(function (done) {
+					instance.cache['other'] = 'Newxyz';
+					instance.save(function (err) {
+						if (err) {
+							done(err);
+						}
+						else {
+							done();
+						}
+					});
+				});
+
+				it('should create new file with correct content', function (done) {
+					fs.readFile(path + '/other.html', 'utf8', function (err, data) {
+						should(err).not.be.ok();
+						should(data).equal('Newxyz');
+						done();
+					});
+				});
+
+				it('should keep content in existing file', function (done) {
+					fs.readFile(path + '/page.html', 'utf8', function (err, data) {
+						should(err).not.be.ok();
+						should(data).equal('Welcome2 .it');
+						done();
+					});
+				});
+
+			});
+
 		});
 
 		describe('save with two cache entries at different levels', function () {
@@ -366,6 +425,31 @@ describe('TemplateDirectory', function () {
 					should(data).equal('Press here');
 					done();
 				});
+			});
+
+			describe('resave with removal', function () {
+
+				beforeEach(function (done) {
+					delete instance.cache['comps/cta'];
+					instance.save(function (err) {
+						err ? done(err) : done();
+					});
+				});
+
+				it('should preserve existing file', function (done) {
+					fs.readFile(path + '/index.html', 'utf8', function (err, data) {
+						should(data).equal('This is a test page. (c)2xxx');
+						done();
+					});
+				});
+
+				it('should delete file', function (done) {
+					fs.stat(path + '/comps/cta.html', function (err, stats) {
+						should(err).be.ok();
+						done();
+					});
+				});
+
 			});
 
 		});
