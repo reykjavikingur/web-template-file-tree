@@ -1,6 +1,7 @@
 var fs = require('fs');
 var should = require('should');
 var _ = require('underscore');
+var del = require('del');
 var TemplateDirectory = require('../lib/template-directory');
 
 
@@ -16,7 +17,7 @@ describe('TemplateDirectory', function () {
 		}).throw();
 	});
 
-	describe('instantiation', function () {
+	describe('instance for populated directory', function () {
 
 		var path, instance;
 
@@ -257,6 +258,114 @@ describe('TemplateDirectory', function () {
 					});
 				});
 
+			});
+
+		});
+
+	});
+
+	describe('instance for new directory', function () {
+
+		var path, instance;
+
+		beforeEach(function () {
+			path = __dirname + '/../.tmp/site';
+			instance = new TemplateDirectory(path);
+		});
+
+		afterEach(function (done) {
+			del(path)
+				.then(function (r) {
+					done();
+				}, function (e) {
+					done(e);
+				});
+		});
+
+		it('(SANITY) should not have created directory yet', function (done) {
+			fs.stat(path, function (err, stats) {
+				should(err).be.ok();
+				done();
+			});
+		});
+
+		describe('save with one cache entry', function () {
+
+			var error;
+
+			beforeEach(function (done) {
+				instance.cache['page'] = 'Welcome2 .it';
+				instance.save(function (err) {
+					error = err;
+					done();
+				});
+			});
+
+			it('should not set error', function () {
+				should(error).not.be.ok();
+			});
+
+			it('should create file', function (done) {
+				fs.stat(path + '/page.html', function (err, stats) {
+					should(err).not.be.ok();
+					should(stats).be.ok();
+					done();
+				});
+			});
+
+			it('should write correct contents to file', function (done) {
+				fs.readFile(path + '/page.html', 'utf8', function (err, data) {
+					should(err).not.be.ok();
+					should(data).equal('Welcome2 .it');
+					done();
+				});
+			});
+
+		});
+
+		describe('save with two cache entries at different levels', function () {
+
+			beforeEach(function (done) {
+				instance.cache['index'] = 'This is a test page. (c)2xxx';
+				instance.cache['comps/cta'] = 'Press here';
+				instance.save(function (err) {
+					if (err) {
+						done(err);
+					}
+					else {
+						done();
+					}
+				});
+			});
+
+			it('should create first file', function (done) {
+				fs.stat(path + '/index.html', function (err, stats) {
+					should(err).not.be.ok();
+					should(stats).be.ok();
+					done();
+				});
+			});
+
+			it('should create second file', function (done) {
+				fs.stat(path + '/comps/cta.html', function (err, stats) {
+					should(err).not.be.ok();
+					should(stats).be.ok();
+					done();
+				});
+			});
+
+			it('should write correct content to first file', function (done) {
+				fs.readFile(path + '/index.html', 'utf8', function (err, data) {
+					should(data).equal('This is a test page. (c)2xxx');
+					done();
+				});
+			});
+
+			it('should write correct content to second file', function (done) {
+				fs.readFile(path + '/comps/cta.html', 'utf8', function (err, data) {
+					should(data).equal('Press here');
+					done();
+				});
 			});
 
 		});
