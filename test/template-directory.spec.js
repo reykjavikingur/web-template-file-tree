@@ -1,3 +1,4 @@
+var os = require('os');
 var fs = require('fs');
 var should = require('should');
 var _ = require('underscore');
@@ -111,7 +112,7 @@ describe('TemplateDirectory', function () {
 			});
 
 			it('should have correct value for index', function () {
-				should(instance.cache['index']).eql('home\n');
+				should(instance.cache['index']).eql('home' + os.EOL);
 			});
 
 			it('should have correct value for faq', function () {
