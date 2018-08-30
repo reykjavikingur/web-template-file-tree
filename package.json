@@ -1,6 +1,6 @@
 {
   "name": "web-template-file-tree",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utility to index files in a directory based on relative path and cache contents",
   "main": "index.js",
   "scripts": {
